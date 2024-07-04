@@ -70,7 +70,7 @@ public class SimpleWhitelist {
         String nombreActual = "";
 
         while((nombreActual = lector.readLine()) != null){
-            listaJugadores.add(nombreActual);
+            listaJugadores.add(nombreActual.toLowerCase());
         }
 
         return listaJugadores;
@@ -84,7 +84,7 @@ public class SimpleWhitelist {
         String nombreJugador = jugador.getName().getString();
         try {
             List<String> listaWhitelist = this.getPlayerList();
-            if(!listaWhitelist.contains(nombreJugador)){
+            if(!listaWhitelist.contains(nombreJugador.toLowerCase())){
                 jugador.connection.disconnect(Component.nullToEmpty("No estás en la whitelist"));
                 SimpleWhitelist.LOGGER.warn(String.format("%s ha intentado entrar sin estar en la whitelist", jugador.getName().getString()));
             }
