@@ -1,7 +1,10 @@
 package org.darkrpa.mods.simplewhitelist.simplewhitelist;
 
 import com.mojang.logging.LogUtils;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.commands.KickCommand;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
@@ -34,7 +37,6 @@ public class SimpleWhitelist {
     // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
     private File archivoNombres;
-    private MinecraftServer servidor;
     private static boolean isDisabled;
 
     public SimpleWhitelist() {
@@ -77,24 +79,18 @@ public class SimpleWhitelist {
     // You can use SubscribeEvent and let the Event Bus discover methods to call
     @SubscribeEvent
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
-        // Do something when the server starts
         if(SimpleWhitelist.isDisabled()) return;
         ServerPlayer jugador = (ServerPlayer) event.getPlayer();
         String nombreJugador = jugador.getName().getString();
         try {
             List<String> listaWhitelist = this.getPlayerList();
             if(!listaWhitelist.contains(nombreJugador)){
-                jugador.disconnect();
+                jugador.connection.disconnect(Component.nullToEmpty("No estás en la whitelist"));
+                SimpleWhitelist.LOGGER.warn(String.format("%s ha intentado entrar sin estar en la whitelist", jugador.getName().getString()));
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-    }
-
-    @SubscribeEvent
-    public void onServerStart(ServerStartedEvent evento){
-        this.servidor = evento.getServer();
     }
 
     public static boolean isDisabled(){
